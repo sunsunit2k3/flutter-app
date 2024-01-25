@@ -1,28 +1,10 @@
 import 'package:flutter/material.dart';
+import './my_object.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyObject {
-  int value;
-
-  MyObject(this.value);
-  // Tang gia tri len 1 don vi
-  void increase() {
-    value++;
-  }
-
-  // Giam gia tri xuong 1 don vi
-  void decrease() {
-    value--;
-  }
-
-  int get myValue => value;
-  set myValue(int newValue) {
-    value = newValue;
-  }
-}
 // Thay vì sử dụng _value trong class MyAppState, ta sử dụng _myObject để dễ dàng kiểm soát giá trị.
 // Điều này giúp trong việc tái sử dụng (_myObject có thể sử dụng nhiều lần trong dự án) và mở rộng (thêm chức năng mới).
 // Có tính logic cao, dễ dàng đọc hơn, dễ dàng kiểm soát hơn, dễ bảo trì hơn.
@@ -35,11 +17,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // int _value = 0;
-  MyObject _myObject = MyObject(0);
+  final MyObject _myObject = MyObject(value_1: 0, value_2: 0);
   String? title;
-  Widget _buildText() {
+  Widget _value_1() {
     return Text(
-      'Giá trị: ${_myObject.value}  ',
+      'Giá trị: ${_myObject.value_1}  ',
+      style: const TextStyle(fontSize: 20),
+    );
+  }
+
+  Widget _value_2() {
+    return Text(
+      'Giá trị: ${_myObject.value_2}  ',
       style: const TextStyle(fontSize: 20),
     );
   }
@@ -56,10 +45,12 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildText(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // const TextField(),r
+                  _value_1(),
+                  _value_2(),
                   OutlinedButton(
                     onPressed: () {
                       setState(() {
