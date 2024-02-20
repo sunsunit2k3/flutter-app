@@ -1,0 +1,56 @@
+{
+    "ward": [
+        {
+            "id": "00001",
+            "name": "Phường Phúc Xá",
+            "level": "Phường",
+            "districtId": "001",
+            "provinceId": "01"
+        },
+        {
+            "id": "00004",
+            "name": "Phường Trúc Bạch",
+            "level": "Phường",
+            "districtId": "001",
+            "provinceId": "01"
+        },
+        {
+            "id": "00002",
+            "name": "Xã Vân Canh",
+            "level": "Xã",
+            "districtId": "003",
+            "provinceId": "01"
+        }
+    ],
+    "district": [
+        {
+            "id": "001",
+            "name": "Quận Ba Đình",
+            "level": "Quận",
+            "provinceId": "01"
+        },
+        {
+            "id": "002",
+            "name": "Quận Hoàn Kiếm",
+            "level": "Quận",
+            "provinceId": "01"
+        },{
+            "id": "003",
+            "name": "Huyện Hoài Đức",
+            "level": "Huyện",
+            "provinceId": "01"
+        }
+    ],
+    "province": [
+        {
+            "id": "01",
+            "name": "Thành phố Hà Nội",
+            "level": "Thành phố Trung ương"
+        },
+        {
+            "id": "02",
+            "name": "Tỉnh Hà Giang",
+            "level": "Tỉnh"
+        }
+    ]
+}
