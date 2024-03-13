@@ -4,8 +4,9 @@ import '../models/address.dart';
 import '../models/load_data.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('Address Infor Tests', () {
-    testWidgets('Test AddressInfo creation', (WidgetTester tester) async {
+    test('Test AddressInfo creation', () async {
       await loadLocationData();
       final Map<String, dynamic> addressMap = {
         'province': {

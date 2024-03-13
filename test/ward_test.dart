@@ -4,8 +4,9 @@ import '../models/load_data.dart';
 import '../models/ward.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('Ward Tests', () {
-    testWidgets('Test Ward creation from map', (WidgetTester tester) async {
+    test('Test Ward creation from map', () async {
       await loadLocationData();
 
       int index = 0;
