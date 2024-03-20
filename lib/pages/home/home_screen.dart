@@ -1,118 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/data/date_now.dart';
+import 'package:flutter_application_1/models/article.dart';
+import 'package:flutter_application_1/widgets/article/article_tile.dart';
+import 'package:flutter_application_1/utils/date_now.dart';
 import 'package:flutter_application_1/data/get_article.dart';
-import 'package:flutter_application_1/pages/home/article_detail_screen.dart';
+import 'package:flutter_application_1/widgets/article/categories_list.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late List<Article> originalArticles;
+  late List<Article> displayedArticles;
+  late Future<List<Article>> articles;
+
+  @override
+  void initState() {
+    super.initState();
+    articles = getArticles();
+    articles.then((articles) {
+      setState(() {
+        originalArticles = articles;
+        displayedArticles = articles;
+      });
+    });
+  }
+
+  void search(String query) {
+    setState(() {
+      displayedArticles = originalArticles
+          .where((article) =>
+              article.title.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    getArticles();
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [
-            Text(
-              // ignore: unnecessary_string_interpolations
-              '${getCurrentDate()}',
-              style: const TextStyle(
-                fontStyle: FontStyle.italic,
-                fontFamily: "Raleway",
-                fontSize: 15.0,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(getCurrentDate()),
+              const Text(
+                'Explore',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                ),
               ),
-            ),
-            const Text(
-              "Explore",
-              style: TextStyle(
-                fontSize: 20.0,
-                fontFamily: "Times New Roman",
+              const SizedBox(height: 28),
+              Container(
+                padding: const EdgeInsets.only(right: 16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: TextFormField(
+                  onChanged: search,
+                  decoration: InputDecoration(
+                    fillColor: Colors.grey.shade300,
+                    filled: true,
+                    border: InputBorder.none,
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search for article',
+                  ),
+                ),
               ),
-            )
-          ],
+              const SizedBox(height: 32),
+              const SizedBox(
+                height: 40,
+                child: CategoriesBar(),
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: ArticleList(articles: displayedArticles), // Sửa ở đây
+              ),
+            ],
+          ),
         ),
-        centerTitle: true,
-        backgroundColor: Colors.grey[300],
       ),
-      body: FutureBuilder(
-        future: getArticles(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.active:
-            case ConnectionState.waiting:
-              return const Center(child: CircularProgressIndicator());
-            case ConnectionState.done:
-              final data = snapshot.data ?? [];
-              return ListView.builder(
-                itemCount: data.length,
-                itemBuilder: (context, index) {
-                  if (data[index].urlToImage == null) return const SizedBox();
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: ListTile(
-                      title: Column(
-                        children: [
-                          Text(
-                            data[index].title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15.0,
-                            ),
-                          ),
+    );
+  }
+}
 
-                          const SizedBox(
-                              height: 5), // Khoảng cách giữa title và author
-                          Padding(
-                            padding: const EdgeInsets.only(left: 220.0),
-                            child: Text(
-                              'By: ${data[index].name}',
-                              style: const TextStyle(
-                                fontStyle: FontStyle.italic,
-                                fontSize: 12.0,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      leading: FadeInImage(
-                        placeholder: const AssetImage(
-                            '../../../assets/img.gif'), // Hình ảnh mặc định hiển thị trong khi hình ảnh thực tế đang được tải
-                        image: NetworkImage(data[index].urlToImage ?? ''),
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        imageErrorBuilder: (context, error, stackTrace) {
-                          // Xử lý khi không thể tải được hình ảnh
-                          return Image.asset(
-                            '../../../assets/img.gif', // Sử dụng hình ảnh từ assets làm placeholder khi không thể tải được ảnh từ mạng
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ArticleDetailScreen(
-                              title: data[index].title,
-                              urlToImage: data[index].urlToImage ?? '',
-                              name: data[index].name,
-                              content: data[index].content ?? '',
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
-          }
-        },
-      ),
+class ArticleList extends StatelessWidget {
+  final List<Article> articles; // Sửa ở đây
+
+  const ArticleList({Key? key, required this.articles}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.only(right: 16.0),
+      itemCount: articles.length,
+      itemBuilder: (context, index) {
+        return ArticleTile(
+          article: articles[index],
+        );
+      },
     );
   }
 }
