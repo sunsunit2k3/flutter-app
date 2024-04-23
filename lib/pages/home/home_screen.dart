@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/article.dart';
 import 'package:flutter_application_1/widgets/article/article_tile.dart';
 import 'package:flutter_application_1/utils/date_now.dart';
-import 'package:flutter_application_1/data/get_article.dart';
+import 'package:flutter_application_1/apis/get_article.dart';
 import 'package:flutter_application_1/widgets/article/categories_list.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,13 +14,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late List<Article> originalArticles;
-  late List<Article> displayedArticles;
+  late List<Article> displayedArticles = []; // Initialize displayedArticles
   late Future<List<Article>> articles;
 
   @override
   void initState() {
     super.initState();
-    articles = getArticles();
+    articles = getArticles(null); // Truyền vào null để lấy tất cả các bài báo
     articles.then((articles) {
       setState(() {
         originalArticles = articles;
@@ -80,8 +80,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 24),
               Expanded(
-                child: ArticleList(articles: displayedArticles), // Sửa ở đây
-              ),
+                child: FutureBuilder<List<Article>>(
+                  future: getArticles(null),
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.none:
+                      case ConnectionState.active:
+                      case ConnectionState.waiting:
+                        return const Center(child: CircularProgressIndicator());
+                      case ConnectionState.done:
+                        if (snapshot.hasData) {
+                          final List<Article>? articles = snapshot.data;
+                          if (articles != null && articles.isNotEmpty) {
+                            return ArticleList(articles: displayedArticles);
+                          } else {
+                            return const Center(
+                                child: Text('No articles found.'));
+                          }
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else {
+                          return const Center(
+                              child: Text('No data available.'));
+                        }
+                    }
+                  },
+                ),
+              )
             ],
           ),
         ),
@@ -91,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class ArticleList extends StatelessWidget {
-  final List<Article> articles; // Sửa ở đây
+  final List<Article> articles;
 
   const ArticleList({Key? key, required this.articles}) : super(key: key);
 
